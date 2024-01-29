@@ -4,7 +4,7 @@
 -- --------------------------------------------------------------------------------
 DELIMITER $$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `enroll`(cid INT, prodid INT)
+CREATE DEFINER=`root`@`localhost` PROCEDURE `enroll`(studid INT, subjid INT)
 BEGIN
     DECLARE no_more_products INT DEFAULT 0;
     DECLARE prd_date VARCHAR(10);
@@ -14,7 +14,7 @@ BEGIN
     DECLARE expired BOOLEAN DEFAULT FALSE;
 
     DECLARE cur_sched CURSOR FOR
-        SELECT expiration_date FROM subjects WHERE pid = prodid;
+        SELECT sched FROM subjects WHERE subjid = subjid;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND
         SET no_more_products = 1;
@@ -39,7 +39,7 @@ BEGIN
 
         -- If the product is not expired, insert the order
         IF NOT expired THEN
-            INSERT INTO orders (cid, prodid) VALUES (cid, prodid);
+            INSERT INTO enroll (studid, subjid) VALUES (studid, subjid);
         END IF;
 
         FETCH cur_sched INTO prd_date;
