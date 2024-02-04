@@ -74,3 +74,56 @@ BEGIN
     set output2 = sched_start;
     set output3 = sched_end;
 END
+----------------------
+CREATE PROCEDURE `in progress` (in Studid int, in subid int, out output varchar(20),out output2 varchar(20))
+BEGIN
+declare no_more_rows int default 0;
+DECLARE enrollment_count INT;
+DECLARE conflict BOOLEAN DEFAULT FALSE;
+declare sched1 varchar(20);
+declare sched2 int;
+declare sched3 int;
+declare temp varchar(20);
+declare checker cursor for
+	select sched from (students left outer join enroll on students.studid = enroll.studid) left outer join subjects on subjects.subjid = enroll.subjid where enroll.studid = Studid;
+DECLARE CONTINUE HANDLER FOR NOT FOUND
+	SET no_more_rows = 1;
+set output = 'conflict';
+call sample(Studid, subid, @a,@b,@c);
+select @a into sched1;
+select @b into sched2;
+select @c into sched3;
+
+SELECT COUNT(*) INTO enrollment_count from (students left outer join enroll on students.studid = enroll.studid) left outer join subjects on subjects.subjid = enroll.subjid where enroll.studid = Studid; 
+set enrollment_count = enrollment_count + 1;
+set output2 = enrollment_count;
+open checker;
+fetch checker into temp;
+REPEAT
+	set enrollment_count = enrollment_count - 1;
+	-- Extract year, month, and day from expiration date
+	call process_sched(temp, @sched_day,@sched_start,@sched_end);
+	-- Check if the product is expired
+    CASE 
+		WHEN 831 BETWEEN @sched_start AND @sched_end or 830 BETWEEN @sched_start AND @sched_end THEN
+        if sched1 = @sched_day then
+        SET conflict = true;
+        else
+        set conflict = false;
+        end if;
+        else
+        SET conflict = false;
+	end case;
+    
+	-- If the product is not expired, insert the order
+	IF NOT conflict and enrollment_count = 0 THEN
+		INSERT INTO enroll (studid, subjid) VALUES (Studid, subid);
+        set output = 'enrolled';
+	END IF;
+    
+	FETCH checker INTO temp;
+UNTIL no_more_rows = 1
+END REPEAT;
+CLOSE checker;
+
+END
