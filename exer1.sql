@@ -85,6 +85,7 @@ CREATE PROCEDURE `enrollmentsystem`.`main` (in Studid int, in subid int, out out
 BEGIN
 declare no_more_rows int default 0;
 DECLARE enrollment_count INT;
+DECLARE conflict_count INT default 0;
 DECLARE conflict BOOLEAN DEFAULT FALSE;
 declare sched1 varchar(20);
 declare sched2 int;
@@ -102,7 +103,7 @@ select @c into sched3;
 set output = 'conflict';
 SELECT COUNT(*) INTO enrollment_count from (students left outer join enroll on students.studid = enroll.studid) left outer join subjects on subjects.subjid = enroll.subjid where enroll.studid = Studid; 
 set enrollment_count = enrollment_count + 1;
-set output2 = enrollment_count;
+
 open checker;
 fetch checker into temp;
 
@@ -114,19 +115,23 @@ REPEAT
 
 	IF ((sched2 >= @sched_start AND sched2 <= @sched_end) OR (sched3 >= @sched_start AND sched3 <= @sched_end)) AND (sched1 = @sched_day) THEN
     SET conflict = TRUE;
+	SET conflict_count = conflict_count + 1;
 	END IF;
 
-	-- If the product is not expired, insert the order
-	IF NOT conflict THEN
-		INSERT INTO enroll (studid, subjid) VALUES (Studid, subid);
-        set output = 'enrolled';
-	END IF;
+	
 	
 	set enrollment_count = enrollment_count - 1;
     
 	FETCH checker INTO temp;
 UNTIL no_more_rows = 1
 END REPEAT;
+
+-- If the product is not expired, insert the order
+	IF NOT conflict and conFlict_count = 0 THEN
+		INSERT INTO enroll (studid, subjid) VALUES (Studid, subid);
+        set output = 'enrolled';
+	END IF;
+
 CLOSE checker;
 
 END
