@@ -81,7 +81,7 @@ END
 -- --------------------------------------------------------------------------------
 DELIMITER $$
 
-CREATE PROCEDURE `enrollmentsystem`.`main` (in Studid int, in subid int, out output varchar(20),out output2 varchar(20))
+CREATE PROCEDURE `enrollmentsystem`.`main` (in Studid int, in subid int, out output varchar(20))
 BEGIN
 declare no_more_rows int default 0;
 DECLARE enrollment_count INT;
@@ -149,7 +149,7 @@ BEGIN
     declare sched_start int;
     declare sched_end int;
 	
-    set sched_day = left(fullsched, 4);
+    set sched_day = left(fullsched, 3);
     set sched_time = right(fullsched, 9);
     set sched_start = left(sched_time, 4);
     set sched_end = right(sched_time, 4);
@@ -175,7 +175,7 @@ BEGIN
 	
     select sched into fullsched from subjects where subjid = subid;
     
-    set sched_day = left(fullsched, 4);
+    set sched_day = left(fullsched, 3);
     set sched_time = right(fullsched, 9);
     set sched_start = left(sched_time, 4);
     set sched_end = right(sched_time, 4);
