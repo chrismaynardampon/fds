@@ -64,3 +64,38 @@ BEGIN
     set output = course;
     set output2 = studyear;
 END
+---------------------------IN PROGRESS ---------------------------------------
+CREATE DEFINER = CURRENT_USER TRIGGER `enrollmentsystem`.`Students_AFTER_INSERT` AFTER INSERT ON `Students` FOR EACH ROW
+BEGIN
+declare no_more_rows int default 0;
+declare temp varchar(20);
+declare studcourse varchar(20);
+declare studyear int;
+declare fullcourse varchar(20);
+declare subjectyear int;
+declare subjectid int;
+
+declare checker cursor for
+	select subjcode from subjects;
+DECLARE CONTINUE HANDLER FOR NOT FOUND
+	SET no_more_rows = 1;
+
+select studcourse,studyear into studcourse,studyear from students where studid = new.studid;
+set studcourse = right(studcourse, 2);
+set studyear = left(studyear, 1);
+
+open checker;
+fetch checker into temp;
+REPEAT
+	select subjid into subjectid from subjects where subjcode = temp;
+	set fullcourse = left(temp, 2);
+    set subjectyear = substring(temp, 3, 1);
+	if fullcourse = studcourse and subjectyear = studyear then
+		insert into enroll(studid,subjid) values(new.studid,subjectid);
+	end if;
+    
+	FETCH checker INTO temp;
+UNTIL no_more_rows = 1
+END REPEAT;
+CLOSE checker;
+END
