@@ -70,9 +70,9 @@ BEGIN
 declare no_more_rows int default 0;
 declare temp varchar(20);
 declare studcourse varchar(20);
-declare studyear int;
+declare studyear varchar(20);
 declare fullcourse varchar(20);
-declare subjectyear int;
+declare subjectyear varchar(20);
 declare subjectid int;
 
 declare checker cursor for
@@ -80,9 +80,9 @@ declare checker cursor for
 DECLARE CONTINUE HANDLER FOR NOT FOUND
 	SET no_more_rows = 1;
 
-select studcourse,studyear into studcourse,studyear from students where studid = new.studid;
+select studcourse,yrlvl into studcourse,studyear from students where studid = new.studid;
 set studcourse = right(studcourse, 2);
-set studyear = left(studyear, 1);
+set studyear = left(yrlvl, 1);
 
 open checker;
 fetch checker into temp;
