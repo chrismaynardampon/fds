@@ -98,3 +98,24 @@ UNTIL no_more_rows = 1
 END REPEAT;
 CLOSE checker;
 END;
+----------------------------------------------------------------------
+CREATE DEFINER = CURRENT_USER TRIGGER `enrollmentsystem`.`subjects_AFTER_INSERT` AFTER INSERT ON `subjects` FOR EACH ROW
+BEGIN
+declare no_more_rows int default 0;
+declare temp int;
+declare student_id int;
+declare checker cursor for
+	select studid from students where right(studcourse, 2) = left(new.subjcode, 2) AND LEFT(yrlvl, 1) = substring(new.subjcode, 3, 1);
+DECLARE CONTINUE HANDLER FOR NOT FOUND
+	SET no_more_rows = 1;
+
+OPEN checker;
+FETCH checker INTO temp;
+REPEAT
+	select studid into student_id from students where studid = temp;
+	INSERT INTO enroll (studid, subjid) VALUES (student_id, NEW.subjid);
+    FETCH checker INTO temp;
+    UNTIL no_more_rows = 1
+END REPEAT;
+CLOSE checker;
+END
