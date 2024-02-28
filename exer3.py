@@ -1,5 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
+import pymongo
+
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+mydb = myclient["enrollmentsystem"]
+mycol = mydb["students"]
 
 window = tk.Tk()
 window.title("Python Window")
@@ -52,9 +57,9 @@ scourse = tk.StringVar()
 studcourse = tk.Entry(window, textvariable=scourse)
 studcourse.grid(column=2,row=6)
 
-sid = tk.StringVar()
-studid = tk.Entry(window, textvariable=sid)
-studid.grid(column=2,row=7)
+studyr = tk.StringVar()
+studyear = tk.Entry(window, textvariable=studyr)
+studyear.grid(column=2,row=7)
 
 def msgbox(msg,titlebar):
     result=messagebox.askokcancel(title=titlebar, message=msg)
@@ -63,9 +68,16 @@ def msgbox(msg,titlebar):
 def callback(event):
     li = []
     li=event.widget._values
-    sid.set(studrec[li[i]][0])
-    sname.set(studrec[li[i]][1])
-
+    if li[1] != 0:
+        sid.set(studrec[li[1]][0])
+        sname.set(studrec[li[1]][1])
+    else:
+        sid.set("")
+        sname.set("")
+        sadd.set("")
+        scontact.set("")
+        scourse.set("")
+        studyr.set("")
 def creategrid(n):
     for i in range(len(studrec)):
         for j in range(len(studrec[0])):
@@ -73,14 +85,22 @@ def creategrid(n):
             mgrid.insert(tk.END, studrec[i][j])
             mgrid._values = mgrid.get(), i
             mgrid.grid(row=i+9, column=j+6)
-            mgrid.bind("<Button>-1", callback)
+            mgrid.bind("<Button-1>", callback)
 
 def save():
     r=msgbox("save record","record")
+    if r==True:
+            mycol.insert_one({"studid": int(studid.get()),"studname": studname.get(), "studadd": studadd.get(), "studcourse": studcourse.get()})
 def update():
     r=msgbox("update record","record")
+    if r==True:
+            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
+            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studadd": studadd.get()}})
+            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
 def delete():
     r=msgbox("delete record","record")
+    if r==True:
+            mycol.delete_one({"studid": int(studid.get())})
 
 savebtn = tk.Button(text="Save", command=save)
 savebtn.grid(column=1,row=8)
