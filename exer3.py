@@ -11,11 +11,11 @@ window.title("Python Window")
 window.geometry("1050x400")
 window.configure(bg="orange")
 
-studrec = [["studid","studname","studadd","studcontact", "studcourse", "yearlevel"],["1","asd","asd","asd", "asd", "asd"]]
+studrec = [[]]
 
-label = tk.Label(window, text="Student Registration", width=50, height= 1, bg="yellow", anchor="center")
+label = tk.Label(window, text="Student Registration", width=20, height= 1, bg="yellow", anchor="center")
 label.config(font=("Courier", 10))
-label.grid(column=1,row=1)
+label.grid(column=2,row=1)
 
 label = tk.Label(window, text="Student ID:", width=20, height= 1, bg="yellow", anchor="center")
 label.grid(column=1,row=2)
@@ -35,6 +35,25 @@ label.grid(column=1,row=6)
 label = tk.Label(window, text="Student Year Lvl:", width=20, height= 1, bg="yellow", anchor="center")
 label.grid(column=1,row=7)
 
+# table
+
+label = tk.Label(window, text="Studid", width=13, height= 1, bg="yellow", anchor="center")
+label.grid(column=5,row=9)
+
+label = tk.Label(window, text="Studname", width=13, height= 1, bg="yellow", anchor="center")
+label.grid(column=6,row=9)
+
+label = tk.Label(window, text="Studadd", width=13, height= 1, bg="yellow", anchor="center")
+label.grid(column=7,row=9)
+
+label = tk.Label(window, text="Studcontact", width=13, height= 1, bg="yellow", anchor="center")
+label.grid(column=8,row=9)
+
+label = tk.Label(window, text="Studcourse", width=13, height= 1, bg="yellow", anchor="center")
+label.grid(column=9,row=9)
+
+label = tk.Label(window, text="Studyear", width=13, height= 1, bg="yellow", anchor="center")
+label.grid(column=10,row=9)
 
 
 sid = tk.StringVar()
@@ -68,39 +87,51 @@ def msgbox(msg,titlebar):
 def callback(event):
     li = []
     li=event.widget._values
-    if li[1] != 0:
-        sid.set(studrec[li[1]][0])
-        sname.set(studrec[li[1]][1])
-    else:
-        sid.set("")
-        sname.set("")
-        sadd.set("")
-        scontact.set("")
-        scourse.set("")
-        studyr.set("")
-def creategrid(n):
+    sid.set(studrec[li[1]][0])
+    sname.set(studrec[li[1]][1])
+    sadd.set(studrec[li[1]][2])
+    scontact.set(studrec[li[1]][3])
+    scourse.set(studrec[li[1]][4])
+    studyr.set(studrec[li[1]][5])
+    
+def deletegrid():
+    for label in window.grid_slaves():
+        if (int(label.grid_info()["row"]) > 9):
+            label.grid_forget()
+def creategrid():
+    global studrec
+    students = list(mycol.find({}))
+    studrec = [[stud['studid'], stud['studname'], stud['studadd'],stud['studcontact'], stud['studcourse'], stud['studyear']] for stud in students]
     for i in range(len(studrec)):
         for j in range(len(studrec[0])):
             mgrid = tk.Entry(window,width=15)
             mgrid.insert(tk.END, studrec[i][j])
             mgrid._values = mgrid.get(), i
-            mgrid.grid(row=i+9, column=j+6)
+            mgrid.grid(row=i+10, column=j+5)
             mgrid.bind("<Button-1>", callback)
-
 def save():
     r=msgbox("save record","record")
     if r==True:
-            mycol.insert_one({"studid": int(studid.get()),"studname": studname.get(), "studadd": studadd.get(), "studcourse": studcourse.get()})
+        mycol.insert_one({"studid": int(studid.get()),"studname": studname.get(), "studadd": studadd.get(), "studcontact": studcontact.get(), "studcourse": studcourse.get(), "studyear": studyear.get()})
+        deletegrid()
+        creategrid()
+
 def update():
     r=msgbox("update record","record")
     if r==True:
-            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
-            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studadd": studadd.get()}})
-            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studadd": studadd.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcontact": studadd.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studyear": studyear.get()}})
+        deletegrid()
+        creategrid()
 def delete():
     r=msgbox("delete record","record")
     if r==True:
-            mycol.delete_one({"studid": int(studid.get())})
+        mycol.delete_one({"studid": int(studid.get())})
+        deletegrid()
+        creategrid()
 
 savebtn = tk.Button(text="Save", command=save)
 savebtn.grid(column=1,row=8)
@@ -111,5 +142,6 @@ deletebtn.grid(column=2,row=8)
 updatebtn = tk.Button(text = "Update", command=update)
 updatebtn.grid(column=3,row=8)
 
-creategrid(0)
+
+creategrid()
 window.mainloop()
