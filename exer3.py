@@ -121,7 +121,7 @@ def update():
     if r==True:
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studadd": studadd.get()}})
-        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcontact": studadd.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcontact": studcontact.get()}})
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studyear": studyear.get()}})
         deletegrid()
