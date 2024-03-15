@@ -153,7 +153,7 @@ label.grid(column=5,row=5)
 label = tk.Label(window, text="Mail Start:", width=10, height= 1, bg="yellow", anchor="center")
 label.grid(column=6,row=5)
 
-label = tk.Label(window, text="Course:", width=10, height= 1, bg="yellow", anchor="center")
+label = tk.Label(window, text="Course Start:", width=10, height= 1, bg="yellow", anchor="center")
 label.grid(column=7,row=5)
 
 #row6
@@ -161,17 +161,17 @@ filter_idNum = tk.StringVar()
 filter_idNumEntry = tk.Entry(window, textvariable=filter_idNum, width=12)
 filter_idNumEntry.grid(column=4,row=6)
 
-filter_id = tk.StringVar()
-filter_idEntry = tk.Entry(window, textvariable=filter_id, width=12)
-filter_idEntry.grid(column=5,row=6)
+filter_nameEnd = tk.StringVar()
+filter_nameEndEntry = tk.Entry(window, textvariable=filter_nameEnd, width=12)
+filter_nameEndEntry.grid(column=5,row=6)
 
-filter_id = tk.StringVar()
-filter_idEntry = tk.Entry(window, textvariable=filter_id, width=12)
-filter_idEntry.grid(column=6,row=6)
+filter_mail = tk.StringVar()
+filter_mailEntry = tk.Entry(window, textvariable=filter_mail, width=12)
+filter_mailEntry.grid(column=6,row=6)
 
-filter_id = tk.StringVar()
-filter_idEntry = tk.Entry(window, textvariable=filter_id, width=12)
-filter_idEntry.grid(column=7,row=6)
+filter_course = tk.StringVar()
+filter_courseEntry = tk.Entry(window, textvariable=filter_course, width=12)
+filter_courseEntry.grid(column=7,row=6)
 
 creategrid()
 window.mainloop()
