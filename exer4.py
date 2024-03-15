@@ -13,6 +13,7 @@ window.geometry("1050x400")
 window.configure(bg="orange")
 
 studrec = [[]]
+result = mycol.find({})
 
 label = tk.Label(window, text="Student Registration", width=20, height= 1, bg="yellow", anchor="center")
 label.config(font=("Courier", 10))
@@ -35,19 +36,19 @@ label.grid(column=1,row=5)
 # table
 
 label = tk.Label(window, text="ID", width=13, height= 1, bg="yellow", anchor="center")
-label.grid(column=4,row=9)
+label.grid(column=4,row=7)
 
 label = tk.Label(window, text="Name", width=13, height= 1, bg="yellow", anchor="center")
-label.grid(column=5,row=9)
+label.grid(column=5,row=7)
 
 label = tk.Label(window, text="Email", width=13, height= 1, bg="yellow", anchor="center")
-label.grid(column=6,row=9)
+label.grid(column=6,row=7)
 
 label = tk.Label(window, text="Course", width=13, height= 1, bg="yellow", anchor="center")
-label.grid(column=7,row=9)
+label.grid(column=7,row=7)
 
 label = tk.Label(window, text="TotalUnits", width=13, height= 1, bg="yellow", anchor="center")
-label.grid(column=8,row=9)
+label.grid(column=8,row=7)
 
 sid = tk.StringVar()
 studid = tk.Entry(window, textvariable=sid)
@@ -79,18 +80,18 @@ def callback(event):
     
 def deletegrid():
     for label in window.grid_slaves():
-        if (int(label.grid_info()["row"]) > 9):
+        if (int(label.grid_info()["row"]) > 7):
             label.grid_forget()
-def creategrid():
+def creategrid(result):
     global studrec
-    students = list(mycol.find({}))
+    students = list(result)
     studrec = [[stud['studid'], stud['studname'], stud['studemail'], stud['studcourse'], 0] for stud in students]
     for i in range(len(studrec)):
         for j in range(len(studrec[0])):
             mgrid = tk.Entry(window,width=15)
             mgrid.insert(tk.END, studrec[i][j])
             mgrid._values = mgrid.get(), i
-            mgrid.grid(row=i+10, column=j+4)
+            mgrid.grid(row=i+8, column=j+4)
             mgrid.bind("<Button-1>", callback)
 def save():
     r=msgbox("save record","record")
@@ -107,12 +108,17 @@ def update():
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
         deletegrid()
         creategrid()
+
 def delete():
     r=msgbox("delete record","record")
     if r==True:
         mycol.delete_one({"studid": int(studid.get())})
         deletegrid()
         creategrid()
+
+def filter_table(result):
+    deletegrid()
+    creategrid(result)
 
 savebtn = tk.Button(text="Save", command=save)
 savebtn.grid(column=1,row=6)
@@ -173,5 +179,15 @@ filter_course = tk.StringVar()
 filter_courseEntry = tk.Entry(window, textvariable=filter_course, width=12)
 filter_courseEntry.grid(column=7,row=6)
 
-creategrid()
+#query
+mongoquery = mydb.get_collection("students")
+if current_value == ">":
+    result = mongoquery.find({"studid":{"$gt":filter_idNumEntry.get()}})
+else:
+    result = mongoquery.find({})
+
+filterbtn = tk.Button(text = "Filter", command=filter_table(mongoquery.find({"studid":{"$gt":filter_idNumEntry.get()}})))
+filterbtn.grid(column=9,row=6)
+
+creategrid(result)
 window.mainloop()
