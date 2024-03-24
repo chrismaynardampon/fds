@@ -14,7 +14,10 @@ window.geometry("1050x400")
 window.configure(bg="orange")
 
 studrec = [[]]
+enrolledrec = [[]]
 current_value = ''
+subjarr = ''
+subjtemp = ''
 
 label = tk.Label(window, text="Student Registration", width=20, height= 1, bg="yellow", anchor="center")
 label.config(font=("Courier", 10))
@@ -78,44 +81,99 @@ def callback(event):
     sname.set(studrec[li[1]][1])
     semail.set(studrec[li[1]][2])
     scourse.set(studrec[li[1]][3])
+    creategrid2()
+
+def callback2(event):
+    li = []
+    li=event.widget._values
+    global subjtemp
+    subjtemp = enrolledrec[li[1]][0]
     
 def deletegrid():
     for label in window.grid_slaves():
         if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) > 3:
             label.grid_forget()
+
+def deletegrid2():
+    for label in window.grid_slaves():
+        if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) > 9:
+            label.grid_forget()
+            
 def creategrid():
     deletegrid()
     global studrec, current_value
     temp = filter_idNumEntry.get().isnumeric()
     if current_value == '>' and temp:
-        student = mycol.find({"studid": {"$gt": int(filter_idNumEntry.get())},
+         student = mycol.aggregate([{"$match":{"studid":{"$gt":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     elif current_value == '<' and temp:
-        student = mycol.find({"studid":{"$lt":int(filter_idNumEntry.get())},
+         student = mycol.aggregate([{"$match":{"studid":{"$lt":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     elif current_value == '>=' and temp:
-        student = mycol.find({"studid":{"$gte":int(filter_idNumEntry.get())},
+         student = mycol.aggregate([{"$match":{"studid":{"$gte":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     elif current_value == '<=' and temp:
-        student = mycol.find({"studid":{"$lte":int(filter_idNumEntry.get())},
+        student = mycol.aggregate([{"$match":{"studid":{"$lte":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     elif current_value == '!=' and temp:
-        student = mycol.find({"studid":{"$ne":int(filter_idNumEntry.get())},
+         student = mycol.aggregate([{"$match":{"studid":{"$ne":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     elif current_value == '=' and temp:
-        student = mycol.find({"studid":{"$eq":int(filter_idNumEntry.get())},
+        student = mycol.aggregate([{"$match":{"studid":{"$eq":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     else:
-        student = mycol.find({"studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
-        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
+        student = mycol.aggregate([{"$match":{"studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
+        "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}}},
+                                   {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                                   {"$unwind": {"path":"$enrolled", "preserveNullAndEmptyArrays":True}},
+                                   {"$group":{"_id":"$_id","studid":{"$first":"$studid"},"studname":{"$first":"$studname"},
+                                    "studemail": {"$first": "$studemail"},  
+                                    "studcourse": {"$first": "$studcourse"},  
+                                    "totunits":{"$sum": {"$toInt":"$enrolled.subjunits"}}}},{"$sort": {"studid": 1}}])
     students = list(student)
-    studrec = [[stud['studid'], stud['studname'], stud['studemail'], stud['studcourse'], 0] for stud in students]
+    studrec = [[stud['studid'], stud['studname'], stud['studemail'], stud['studcourse'], stud['totunits']] for stud in students]
     for i in range(len(studrec)):
         for j in range(len(studrec[0])):
             mgrid = tk.Entry(window,width=15)
@@ -143,6 +201,37 @@ def delete():
         mycol.delete_one({"studid": int(studid.get())})
         creategrid()
 
+def addSub():
+    r=msgbox("add subject","record")
+    if r==True:
+        mycol.update_one({"studid": int(studid.get())}, {"$push":{"subjid": subjarr}})
+        creategrid()
+        creategrid2()
+
+def dropSub():
+    r=msgbox("drop subject","record")
+    if r==True:
+        mycol.update_one({"studid": int(studid.get())}, {"$pull":{"subjid": subjtemp}})
+        creategrid()
+        creategrid2()
+
+def creategrid2():
+    deletegrid2()
+    global enrolledrec
+    subject = mycol.aggregate([{"$match":{"studid":int(studid.get())}},
+                               {"$lookup":{"from":"subjects","localField":"subjid","foreignField":"subjid","as":"enrolled"}},
+                               {"$unwind": "$enrolled"},
+                               {"$project": {"subjid":"$enrolled.subjid", "subjcode":"$enrolled.subjcode", "subjdesc":"$enrolled.subjdesc","subjunits":"$enrolled.subjunits", "subjsched":"$enrolled.subjsched"}}])
+    enrolled = list(subject)
+    enrolledrec = [[sub['subjid'], sub['subjcode'], sub['subjdesc'], sub['subjunits'], sub['subjsched']] for sub in enrolled]
+    for i in range(len(enrolledrec)):
+        for j in range(len(enrolledrec[0])):
+            mgrid = tk.Entry(window,width=15)
+            mgrid.insert(tk.END, enrolledrec[i][j])
+            mgrid._values = mgrid.get(), i
+            mgrid.grid(row=i+8, column=j+10)
+            mgrid.bind("<Button-1>", callback2)
+            
 savebtn = tk.Button(text="Save", command=save)
 savebtn.grid(column=1,row=6)
 
@@ -207,10 +296,10 @@ filterbtn = tk.Button(text = "Filter", command=creategrid)
 filterbtn.grid(column=9,row=6)
 
 #exer 5
-addbtn = tk.Button(text="Add Subject", command=None)
+addbtn = tk.Button(text="Add Subject", command=addSub)
 addbtn.grid(column=2,row=8)
 
-dropbtn = tk.Button(text = "Drop Subject", command=None)
+dropbtn = tk.Button(text = "Drop Subject", command=dropSub)
 dropbtn.grid(column=3,row=8)
 
 # subjtable
@@ -287,6 +376,8 @@ def createSubj(parent_window):
         li = []
         li=event.widget._values
         subid.set(subjrec[li[1]][0])
+        global subjarr
+        subjarr = subjrec[li[1]][0]
         subcode.set(subjrec[li[1]][1])
         subdesc.set(subjrec[li[1]][2])
         subunits.set(subjrec[li[1]][3])
@@ -318,15 +409,16 @@ def createSubj(parent_window):
     def update():
         r=msgbox("update record","record")
         if r==True:
-            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
-            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studemail": studadd.get()}})
-            mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjcode": studname.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjdesc": studadd.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjunits": studcourse.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjsched": studcourse.get()}})
             creategrid()
 
     def delete():
         r=msgbox("delete record","record")
         if r==True:
-            mycol.delete_one({"studid": int(studid.get())})
+            mycol2.delete_one({"subjid": int(subjid.get())})
             creategrid()
     
     savebtn = tk.Button(window2, text="Save", command=save)
