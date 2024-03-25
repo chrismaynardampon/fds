@@ -134,7 +134,7 @@ def update():
     r=msgbox("update record","record")
     if r==True:
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
-        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studemail": studadd.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studemail": studemail.get()}})
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
         creategrid()
 
