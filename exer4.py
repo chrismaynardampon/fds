@@ -86,27 +86,29 @@ def deletegrid():
 def creategrid():
     deletegrid()
     global studrec, current_value
-    if current_value == '>':
+    temp = filter_idNumEntry.get().isnumeric()
+
+    if current_value == '>' and temp:
         student = mycol.find({"studid": {"$gt": int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
         "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
-    elif current_value == '<':
+    elif current_value == '<' and temp:
         student = mycol.find({"studid":{"$lt":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
         "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
-    elif current_value == '>=':
+    elif current_value == '>=' and temp:
         student = mycol.find({"studid":{"$gte":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
         "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
-    elif current_value == '<=':
+    elif current_value == '<=' and temp:
         student = mycol.find({"studid":{"$lte":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
         "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
-    elif current_value == '!=':
+    elif current_value == '!=' and temp:
         student = mycol.find({"studid":{"$ne":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
         "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
-    elif current_value == '=':
+    elif current_value == '=' and temp:
         student = mycol.find({"studid":{"$eq":int(filter_idNumEntry.get())},
         "studname": {"$regex": "^"+filter_nameStartEntry.get()+".*"+filter_nameEndEntry.get()+"$"},
         "studemail":{"$regex": "^"+filter_mailEntry.get()}, "studcourse":{"$regex": "^"+filter_courseEntry.get()}})
