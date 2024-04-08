@@ -186,6 +186,8 @@ def save():
     if r==True:
         mycol.insert_one({"studid": int(studid.get()),"studname": studname.get(), "studemail": studemail.get(), "studcourse": studcourse.get()})
         creategrid()
+        create_grade_grid()
+        
 
 def update():
     r=msgbox("update record","record")
@@ -194,12 +196,16 @@ def update():
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studemail": studemail.get()}})
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
         creategrid()
+        create_grade_grid()
+        
 
 def delete():
     r=msgbox("delete record","record")
     if r==True:
         mycol.delete_one({"studid": int(studid.get())})
         creategrid()
+        create_grade_grid()
+        
 
 def addSub():
     r=msgbox("add subject","record")
@@ -209,6 +215,7 @@ def addSub():
         creategrid2()
         create_grade_grid()
 
+
 def dropSub():
     r=msgbox("drop subject","record")
     if r==True:
@@ -216,6 +223,7 @@ def dropSub():
         creategrid()
         creategrid2()
         create_grade_grid()
+
 
 def creategrid2():
     deletegrid2()
@@ -233,6 +241,7 @@ def creategrid2():
             mgrid._values = mgrid.get(), i
             mgrid.grid(row=i+8, column=j+10)
             mgrid.bind("<Button-1>", callback2)
+
             
 savebtn = tk.Button(text="Save", command=save)
 savebtn.grid(column=1,row=6)
@@ -471,12 +480,12 @@ def get_last_row(grid_frame):
             last_row = info['row']
     return last_row
 
+
 def delete_grade_grid():
     last_row = get_last_row(window)
     for label in window.grid_slaves():
         if (int(label.grid_info()["row"]) > last_row - 3):
             label.grid_forget()
-
 
     
 def create_grade_grid(): 
@@ -485,8 +494,8 @@ def create_grade_grid():
         r=msgbox("save grade","record")
         if r==True:
             mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$push":{"enrolled.$.grades": {"prelim": entry_prelim.get(), "midterm": entry_midterm.get(), "prefinal": entry_prefinal.get(), "final": entry_final.get()}}})
+
         
-    
     btn_save_grade = tk.Button(text = "Save Grade", command = save_grade)
     btn_save_grade.grid(column = 3, row = last_row + 1)
     
