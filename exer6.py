@@ -191,7 +191,7 @@ def update():
     r=msgbox("update record","record")
     if r==True:
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studname": studname.get()}})
-        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studemail": studadd.get()}})
+        mycol.update_one({"studid": int(studid.get())}, {"$set":{"studemail": studemail.get()}})
         mycol.update_one({"studid": int(studid.get())}, {"$set":{"studcourse": studcourse.get()}})
         creategrid()
 
@@ -204,16 +204,18 @@ def delete():
 def addSub():
     r=msgbox("add subject","record")
     if r==True:
-        mycol.update_one({"studid": int(studid.get())}, {"$push":{"enrolled.subjid": subjarr}})
+        mycol.update_one({"studid": int(studid.get())}, {"$push":{"enrolled": {"subjid" : subjarr}}})
         creategrid()
         creategrid2()
+        create_grade_grid()
 
 def dropSub():
     r=msgbox("drop subject","record")
     if r==True:
-        mycol.update_one({"studid": int(studid.get())}, {"$pull":{"enrolled.subjid": subjtemp}})
+        mycol.update_one({"studid": int(studid.get())}, {"$pull":{"enrolled": {"subjid": subjtemp}}})
         creategrid()
         creategrid2()
+        create_grade_grid()
 
 def creategrid2():
     deletegrid2()
@@ -409,10 +411,10 @@ def createSubj(parent_window):
     def update():
         r=msgbox("update record","record")
         if r==True:
-            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjcode": studname.get()}})
-            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjdesc": studadd.get()}})
-            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjunits": studcourse.get()}})
-            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjsched": studcourse.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjcode": subjcode.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjdesc": subjdesc.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjunits": subjunits.get()}})
+            mycol2.update_one({"subjid": int(studid.get())}, {"$set":{"subjsched": subjsched.get()}})
             creategrid()
 
     def delete():
@@ -476,15 +478,17 @@ def delete_grade_grid():
             label.grid_forget()
 
 
-def save_grade():
-    delete_grade_grid()
-    create_grade_grid()     
+    
 def create_grade_grid(): 
     last_row = get_last_row(window)
+    def save_grade():
+        r=msgbox("save grade","record")
+        if r==True:
+            mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$push":{"enrolled.$.grades": {"prelim": entry_prelim.get(), "midterm": entry_midterm.get(), "prefinal": entry_prefinal.get(), "final": entry_final.get()}}})
+        
     
     btn_save_grade = tk.Button(text = "Save Grade", command = save_grade)
     btn_save_grade.grid(column = 3, row = last_row + 1)
-    print(last_row)
     
     label = tk.Label(window, text="Prelim", width=13, height= 1, bg="yellow", anchor="center")
     label.grid(column = 4, row = last_row + 2)
