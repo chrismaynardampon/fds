@@ -82,6 +82,8 @@ def callback(event):
     semail.set(studrec[li[1]][2])
     scourse.set(studrec[li[1]][3])
     creategrid2()
+    delete_grade_grid()
+    create_grade_grid()
 
 def callback2(event):
     li = []
@@ -490,7 +492,9 @@ def create_grade_grid():
     def save_grade():
         r=msgbox("save grade","record")
         if r==True:
+            mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$pull" : {"enrolled.$.grades": {}}})
             mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$push":{"enrolled.$.grades": {"prelim": entry_prelim.get(), "midterm": entry_midterm.get(), "prefinal": entry_prefinal.get(), "final": entry_final.get()}}})
+        
 
         
     btn_save_grade = tk.Button(text = "Save Grade", command = save_grade)
