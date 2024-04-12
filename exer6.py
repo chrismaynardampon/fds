@@ -82,22 +82,25 @@ def callback(event):
     semail.set(studrec[li[1]][2])
     scourse.set(studrec[li[1]][3])
     creategrid2()
+    creategrid()
+    for label in window.grid_slaves():
+        if (int(label.grid_info()["row"]) > 8) and int(label.grid_info()["column"]) == 3:
+            label.grid_forget()
+
 
 def callback2(event):
     li = []
     li=event.widget._values
-    global subjtemp, grade_bool
+    global subjtemp
     subjtemp = enrolledrec[li[1]][0]
+    delete_grade_grid()
+    creategrid()
     create_grade_grid()
-    if prelim.get() == "" and midterm.get() == "" and prefinal.get() == "" and final.get() == "":
-        grade_bool = False
-    else:
-        grade_bool = True
-    grade_query()
+    
     
 def deletegrid():
     for label in window.grid_slaves():
-        if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) >= 3:
+        if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) >= 3 and int(label.grid_info()["column"]) < 10:
             if (int(label.grid_info()["column"]) != 3):
                 label.grid_forget()
 
@@ -491,23 +494,46 @@ def delete_grade_grid():
         if (int(label.grid_info()["row"]) > last_row - 3):
             label.grid_forget()
 
-    
-def create_grade_grid(btn=False): 
-    last_row = get_last_row(window)
-    def save_grade():
+
+def save_grade():
+        last_row = get_last_row(window)
         r=msgbox("save grade","record")
+
+        entry_list = []
+        for label in window.grid_slaves():
+            if (int(label.grid_info()["row"]) == last_row):
+                entry_list.append(label)
         if r==True:
             mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$pull" : {"enrolled.$.grades": {}}})
-            mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$push":{"enrolled.$.grades": {"prelim": entry_prelim.get(), "midterm": entry_midterm.get(), "prefinal": entry_prefinal.get(), "final": entry_final.get()}}})
+            mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$push":{"enrolled.$.grades":
+                                                                                                  {"prelim": entry_list[3].get(),
+                                                                                                   "midterm": entry_list[2].get(),
+                                                                                                   "prefinal": entry_list[1].get(),
+                                                                                                   "final": entry_list[0].get()}}})
 
 
-    def create_btn_grade():
-        btn_save_grade = tk.Button(text = "Save Grade", command = save_grade)
+def create_grade_grid():
+    last_row = get_last_row(window)
+    def btn_grade(existing_grade = False):
+        button_text = "Update Grade" if existing_grade else "Save Grade"
+        btn_save_grade = tk.Button(text = button_text, command = save_grade)
         btn_save_grade.grid(column = 3, row = last_row + 1)
+    
 
-
-    if btn:
-        create_btn_grade()
+    query_grade = mycol.aggregate([{"$match": {"studid": int(studid.get()), "enrolled.subjid": subjtemp}},
+                                   {"$unwind": "$enrolled"},
+                                   {"$group": { "_id": None,
+                                                "prelim": {"$first": "$enrolled.grades.prelim"},
+                                                "midterm": {"$first": "$enrolled.grades.midterm"},
+                                                "prefinal": {"$first": "$enrolled.grades.prefinal"},
+                                                "final": {"$first": "$enrolled.grades.final"}}}])
+    grades = list(query_grade)
+    grade_rec = [[grade['prelim'], grade['midterm'], grade['prefinal'], grade['final']] for grade in grades]
+    
+    if grade_rec[0][0] is None:
+        btn_grade(False)
+    else:
+        btn_grade(True)
 
     label = tk.Label(window, text="Prelim", width=13, height= 1, bg="yellow", anchor="center")
     label.grid(column = 4, row = last_row + 2)
@@ -520,39 +546,14 @@ def create_grade_grid(btn=False):
 
     label = tk.Label(window, text="Final", width=13, height= 1, bg="yellow", anchor="center")
     label.grid(column = 7, row = last_row + 2)
-
-    global prelim, midterm, prefinal, final
-    prelim = tk.StringVar()
-    entry_prelim = tk.Entry(window, width = 15, textvariable = prelim)
-    entry_prelim.grid(column = 4, row = last_row + 3)
-
-    midterm = tk.StringVar()
-    entry_midterm = tk.Entry(window, width = 15, textvariable = midterm)
-    entry_midterm.grid(column = 5, row = last_row + 3)
-
-    prefinal = tk.StringVar()
-    entry_prefinal = tk.Entry(window, width = 15, textvariable = prefinal)
-    entry_prefinal.grid(column = 6, row = last_row + 3)
-
-    final = tk.StringVar()
-    entry_final = tk.Entry(window, width = 15, textvariable = final)
-    entry_final.grid(column = 7, row = last_row + 3)
-
-
-def grade_query():
-    query_grade = mycol.aggregate([{"$match": {"studid": int(studid.get()), "enrolled.subjid": subjtemp}},
-                                   {"$unwind": "$enrolled"},
-                                   {"$group": { "_id": None,
-                                                "prelim": {"$first": "$enrolled.grades.prelim"},
-                                                "midterm": {"$first": "$enrolled.grades.midterm"},
-                                                "prefinal": {"$first": "$enrolled.grades.prefinal"},
-                                                "final": {"$first": "$enrolled.grades.final"}}}])
-
-    grades = list(query_grade)
-    grade_rec = [[prelim.set(grade['prelim']) if grade['prelim'] is not None else prelim.set(""),
-                  midterm.set(grade['midterm']) if grade['midterm'] is not None else prelim.set(""),
-                  prefinal.set(grade['prefinal']) if grade['prefinal'] is not None else prelim.set(""),
-                  final.set(grade['final']) if grade['final'] is not None else prelim.set("")] for grade in grades]
-
+    
+    for i in range(len(grade_rec)):
+        for j in range(len(grade_rec[0])):
+            mgrid = tk.Entry(window,width=15)
+            if grade_rec[0][0] is not None:
+                mgrid.insert(tk.END, grade_rec[i][j])
+            mgrid._values = mgrid.get(), i
+            mgrid.grid(row = last_row + 3, column=j+4)
+    
     
 window.mainloop()
