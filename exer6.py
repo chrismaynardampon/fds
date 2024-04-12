@@ -94,7 +94,7 @@ def callback2(event):
     
 def deletegrid():
     for label in window.grid_slaves():
-        if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) > 3:
+        if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) >= 3:
             label.grid_forget()
 
 def deletegrid2():
@@ -415,6 +415,7 @@ def createSubj(parent_window):
         if r==True:
             mycol2.insert_one({"subjid": int(subjid.get()),"subjcode": subjcode.get(), "subjdesc": subjdesc.get(), "subjunits": subjunits.get(),"subjsched": subjsched.get()})
             creategrid()
+
 
     def update():
         r=msgbox("update record","record")
