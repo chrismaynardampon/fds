@@ -82,20 +82,24 @@ def callback(event):
     semail.set(studrec[li[1]][2])
     scourse.set(studrec[li[1]][3])
     creategrid2()
-    delete_grade_grid()
-    create_grade_grid()
 
 def callback2(event):
     li = []
     li=event.widget._values
-    global subjtemp
+    global subjtemp, grade_bool
     subjtemp = enrolledrec[li[1]][0]
+    create_grade_grid()
+    if prelim.get() == "" and midterm.get() == "" and prefinal.get() == "" and final.get() == "":
+        grade_bool = False
+    else:
+        grade_bool = True
     grade_query()
     
 def deletegrid():
     for label in window.grid_slaves():
         if (int(label.grid_info()["row"]) > 7) and int(label.grid_info()["column"]) >= 3:
-            label.grid_forget()
+            if (int(label.grid_info()["column"]) != 3):
+                label.grid_forget()
 
 def deletegrid2():
     for label in window.grid_slaves():
@@ -488,19 +492,23 @@ def delete_grade_grid():
             label.grid_forget()
 
     
-def create_grade_grid(): 
+def create_grade_grid(btn=False): 
     last_row = get_last_row(window)
     def save_grade():
         r=msgbox("save grade","record")
         if r==True:
             mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$pull" : {"enrolled.$.grades": {}}})
             mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjtemp}, {"$push":{"enrolled.$.grades": {"prelim": entry_prelim.get(), "midterm": entry_midterm.get(), "prefinal": entry_prefinal.get(), "final": entry_final.get()}}})
-        
 
-        
-    btn_save_grade = tk.Button(text = "Save Grade", command = save_grade)
-    btn_save_grade.grid(column = 3, row = last_row + 1)
-    
+
+    def create_btn_grade():
+        btn_save_grade = tk.Button(text = "Save Grade", command = save_grade)
+        btn_save_grade.grid(column = 3, row = last_row + 1)
+
+
+    if btn:
+        create_btn_grade()
+
     label = tk.Label(window, text="Prelim", width=13, height= 1, bg="yellow", anchor="center")
     label.grid(column = 4, row = last_row + 2)
 
@@ -547,5 +555,4 @@ def grade_query():
                   final.set(grade['final']) if grade['final'] is not None else prelim.set("")] for grade in grades]
 
     
-create_grade_grid()
 window.mainloop()
