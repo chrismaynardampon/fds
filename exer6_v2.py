@@ -218,6 +218,10 @@ def addSub():
     r=msgbox("add subject","record")
     if r==True:
         mycol.update_one({"studid": int(studid.get())}, {"$push":{"enrolled": {"subjid" : subjarr}}})
+        mycol.update_one({"studid": int(studid.get()), "enrolled.subjid": subjarr}, {"$push":{"enrolled.$.grades":{"prelim": "",
+                                                                                      "midterm": "",
+                                                                                      "prefinal": "",
+                                                                                      "final": ""}}})
         creategrid2()
 
 
@@ -520,15 +524,18 @@ def create_grade_grid():
 
     query_grade = mycol.aggregate([{"$match": {"studid": int(studid.get()), "enrolled.subjid": subjtemp}},
                                    {"$unwind": "$enrolled"},
-                                   {"$group": { "_id": None,
+                                   {"$group": { "_id": "$enrolled.subjid",
                                                 "prelim": {"$first": "$enrolled.grades.prelim"},
                                                 "midterm": {"$first": "$enrolled.grades.midterm"},
                                                 "prefinal": {"$first": "$enrolled.grades.prefinal"},
                                                 "final": {"$first": "$enrolled.grades.final"}}}])
+
+
+    
     grades = list(query_grade)
     grade_rec = [[grade['prelim'], grade['midterm'], grade['prefinal'], grade['final']] for grade in grades]
-    
-    if grade_rec[0][0] is None:
+    print(grade_rec)
+    if grade_rec[0][0] == "":
         btn_grade(False)
     else:
         btn_grade(True)
@@ -548,7 +555,7 @@ def create_grade_grid():
     for i in range(len(grade_rec)):
         for j in range(len(grade_rec[0])):
             mgrid = tk.Entry(window,width=15)
-            if grade_rec[0][0] is not None:
+            if grade_rec[i][j] != "":
                 mgrid.insert(tk.END, grade_rec[i][j])
             mgrid._values = mgrid.get(), i
             mgrid.grid(row = last_row + 3, column=j+4)
