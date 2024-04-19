@@ -533,9 +533,15 @@ def create_grade_grid():
 
     
     grades = list(query_grade)
-    grade_rec = [[grade['prelim'], grade['midterm'], grade['prefinal'], grade['final']] for grade in grades]
+    #grade_rec = [grade['_id'], [grade['prelim'], grade['midterm'], grade['prefinal'], grade['final']] for grade in grades]
+    grade_rec = []
+    for grade in grades:
+        if grade['_id'] == subjtemp:
+            grade_list = [grade['prelim'], grade['midterm'], grade['prefinal'], grade['final']]
+            grade_rec.append(grade_list)
+            
     print(grade_rec)
-    if grade_rec[0][0] == "":
+    if grade_rec[0][0][0] == "":
         btn_grade(False)
     else:
         btn_grade(True)
@@ -554,11 +560,14 @@ def create_grade_grid():
     
     for i in range(len(grade_rec)):
         for j in range(len(grade_rec[0])):
-            mgrid = tk.Entry(window,width=15)
-            if grade_rec[i][j] != "":
-                mgrid.insert(tk.END, grade_rec[i][j])
-            mgrid._values = mgrid.get(), i
-            mgrid.grid(row = last_row + 3, column=j+4)
+            for k in range(len(grade_rec[0][0])):
+                mgrid = tk.Entry(window,width=15)
+                if grade_rec[i][j][k] == "":
+                    mgrid.insert(tk.END, "")
+                else:
+                    mgrid.insert(tk.END, grade_rec[i][j][k])
+                mgrid._values = mgrid.get(), i
+                mgrid.grid(row = last_row + 3, column=j+4)
     
     
 window.mainloop()
